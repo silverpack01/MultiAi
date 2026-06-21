@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MultiAI Chat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="chat-page">
+  <div class="bg-glow bg-glow-a"></div>
+  <div class="bg-glow bg-glow-b"></div>
+  <div class="bg-grid"></div>
+
+  <header class="topbar">
+    <div class="brand" aria-label="MultiAI logo">
+      <span class="brand-mark">M</span>
+      <span class="brand-text">MultiAI</span>
+    </div>
+
+    <a class="contact-link" href="mailto:contact@multiai.dev">Contact</a>
+  </header>
+
+  <main class="chat-shell">
+    <section class="chat-card">
+      <div class="chat-head">
+        <div class="chat-ai-meta">
+          <div class="chat-ai-badge" id="chat-badge">AI</div>
+          <div>
+            <div class="chat-ai-title" id="chat-title">AI Chat</div>
+            <div class="chat-ai-sub" id="chat-subtitle">Loading assistant profile...</div>
+          </div>
+        </div>
+
+        <a class="chat-back" href="index.html">Back to orbit</a>
+      </div>
+
+      <div class="chat-messages" id="chat-messages" aria-live="polite"></div>
+
+      <form class="chat-form" id="chat-form">
+        <textarea class="chat-input" id="chat-input" rows="1" placeholder="Type your message..."></textarea>
+        <button class="chat-send" type="submit">Send</button>
+      </form>
+    </section>
+  </main>
+
+  <script src="chat.js"></script>
+</body>
+</html>
