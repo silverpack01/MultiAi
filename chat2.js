@@ -9,10 +9,6 @@ const aiMeta = {
 
 const meta = aiMeta[ai] || aiMeta.chat;
 
-document.querySelector('.chat-ai-title').textContent = meta.label;
-document.querySelector('.chat-ai-badge').textContent = meta.num;
-document.querySelector('.chat-ai-badge').style.setProperty('--tab-accent', meta.accent);
-
 const messagesEl = document.getElementById('chat-messages');
 const inputEl = document.getElementById('chat-input');
 const formEl = document.getElementById('chat-form');
@@ -65,10 +61,8 @@ formEl.addEventListener('submit', async (e) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ai, message, history: messages.slice(0, -1) }),
     });
-
     const data = await res.json();
     const reply = data.reply || data.error || 'Something went wrong.';
-
     loadingDiv.innerHTML = `<span class="bubble-label">${meta.label}</span>${reply}`;
     messages.push({ role: 'assistant', content: reply });
     saveHistory(messages);
@@ -88,6 +82,6 @@ clearBtn.addEventListener('click', () => {
 inputEl.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' && !e.shiftKey) {
     e.preventDefault();
-    formEl.dispatchEvent(new Event('submit'));
+    formEl.requestSubmit();
   }
 });
