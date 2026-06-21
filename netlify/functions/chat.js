@@ -1,8 +1,8 @@
 const modelMap = {
-  vision: 'nvidia/nemotron-nano-12b-v2',
-  chat: 'qwen/qwen3-next-80b-a3b-instruct',
-  code: 'qwen/qwen3-coder-480b-a35b-instruct',
-  audio: 'meta-llama/llama-3.3-70b-instruct'
+  vision: 'nvidia/nemotron-3-super-120b-a12b:free',
+  chat: 'openai/gpt-oss-120b:free',
+  code: 'nvidia/nemotron-3-ultra-550b-a55b:free',
+  audio: 'google/gemma-4-26b-a4b-it:free'
 };
 
 const systemPrompts = {
@@ -25,27 +25,23 @@ function json(statusCode, payload) {
 }
 
 exports.handler = async (event) => {
-  if (event.httpMethod === 'OPTIONS') {
-    return json(204, {});
-  }
-
-  if (event.httpMethod !== 'POST') {
-    return json(405, { error: 'Method not allowed.' });
-  }
+  if (event.httpMethod === 'OPTIONS') return json(204, {});
+  if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed.' });
 
   const apiKey = process.env.OPENROUTER_API_KEY;
-  if (!apiKey) {
-    return json(500, { error: 'OPENROUTER_API_KEY is not set.' });
-  }
+  if (!apiKey) return json(500, { error: 'OPENROUTER_API_KEY is not set.' });
 
   try {
     const parsed = JSON.parse(event.body || '{}');
     const ai = modelMap[parsed.ai] ? parsed.ai : 'chat';
     const message = String(parsed.message || '').trim();
+    if (!message) return json(400, { error: 'Message is required.' });
 
-    if (!message) {
-      return json(400, { error: 'Message is required.' });
-    }
+    // history array frontend se aayega, validate karo
+    const history = Array.isArray(parsed.history) ? parsed.history : [];
+    const safeHistory = history
+      .filter(m => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
+      .slice(-20); // last 20 messages tak rakho context overflow se bachne ke liye
 
     const upstreamResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
@@ -59,6 +55,7 @@ exports.handler = async (event) => {
         model: modelMap[ai],
         messages: [
           { role: 'system', content: systemPrompts[ai] },
+          ...safeHistory,
           { role: 'user', content: message }
         ],
         temperature: 0.7
@@ -66,10 +63,8 @@ exports.handler = async (event) => {
     });
 
     const data = await upstreamResponse.json();
-
     if (!upstreamResponse.ok) {
-      const errorMessage = data?.error?.message || data?.message || 'OpenRouter request failed.';
-      return json(upstreamResponse.status, { error: errorMessage });
+      return json(upstreamResponse.status, { error: data?.error?.message || 'OpenRouter request failed.' });
     }
 
     const reply = data?.choices?.[0]?.message?.content?.trim() || '';
