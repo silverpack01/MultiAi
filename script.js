@@ -44,6 +44,6 @@ requestAnimationFrame(updateOrbitMotion);
 orbitTabs.forEach((tab) => {
   tab.addEventListener('click', () => {
     const ai = tab.dataset.ai || 'chat';
-    window.open(`chat.html?ai=${encodeURIComponent(ai)}`, '_blank', 'noopener');
+    window.location.href = `chat.html?ai=${encodeURIComponent(ai)}`;
   });
 });
